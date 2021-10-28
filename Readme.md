@@ -5,5 +5,22 @@ The solution that we are proposing involves usage of the survellince cameras whi
 
 This marks end of our brainstorming. 
 
-# Model description
+# Problem statement
+Given frames of video feed or an image construct a machine learning model that can classify it into binary classes viz., safe or unsafe. Unsafe class of images dominantly consists of fire or smoke or potentially both at the same time.
+
+# Proposed solution
+The solution involves deep neural network architecture consisting of convolutional neural networks which are best suited for computer vision. Optimization of network parameters is not enough since we are expecting such dynamic domain of images to be fed into our model and thus hyperparameter tuning is mandatorily anticipated. EDA will be used to perfect the architecture of the model which in farther phases can be incorporated as backend API. The finished proect will be a web application equipped with inferencing API.    
+
+# Hardware and Software requirements
+	## Hardware requirements
+		1. RAM >= 4GB
+		2. AVX instruction set archiecture
+
+	## Software requirements
+		1. Python 3.6–3.9; Python 3.9 support requires TensorFlow 2.5 or later; Python 3.8 support requires TensorFlow 2.2 or later.
+		2. pip 19.0 or later (requires manylinux2010 support)
+		3. Ubuntu 16.04 or later (64-bit)
+		4. macOS 10.12.6 (Sierra) or later (64-bit) (no GPU support); macOS requires pip 20.3 or later
+		5. Windows 7 or later (64-bit) ; Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019
+		6. GPU support requires a CUDA®-enabled card (Ubuntu and Windows)
 
