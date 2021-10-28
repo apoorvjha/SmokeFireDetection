@@ -24,3 +24,7 @@ The solution involves deep neural network architecture consisting of convolution
 		5. Windows 7 or later (64-bit) ; Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019
 		6. GPU support requires a CUDA®-enabled card (Ubuntu and Windows)
 
+
+# Data collection
+The source of dataset is Kaggle. The dataset is mix of video and images from various lighting conditons to account for diverse shade patterns. It is our shear effort to maintain balanced dataset which as free from inherent biases as far as possible.
+
