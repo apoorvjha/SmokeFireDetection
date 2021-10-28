@@ -30,3 +30,4 @@ The source of dataset is Kaggle. The dataset is mix of video and images from var
 	1. https://www.kaggle.com/kutaykutlu/forest-fire
 	2. https://www.kaggle.com/ritupande/fire-detection-from-cctv
 	3. https://www.kaggle.com/phylake1337/fire-dataset
+	4. https://www.kaggle.com/slirq123/fire-smoke-and-neutral
