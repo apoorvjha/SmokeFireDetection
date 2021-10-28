@@ -27,4 +27,6 @@ The solution involves deep neural network architecture consisting of convolution
 
 # Data collection
 The source of dataset is Kaggle. The dataset is mix of video and images from various lighting conditons to account for diverse shade patterns. It is our shear effort to maintain balanced dataset which as free from inherent biases as far as possible.
-
+	1. https://www.kaggle.com/kutaykutlu/forest-fire
+	2. https://www.kaggle.com/ritupande/fire-detection-from-cctv
+	3. https://www.kaggle.com/phylake1337/fire-dataset
