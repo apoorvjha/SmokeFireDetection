@@ -20,7 +20,15 @@ class Logger:
 
 log=Logger()
 '''
+============================================= Think arena ======================================================== 
 https://towardsdatascience.com/comparative-performance-of-deep-learning-optimization-algorithms-using-numpy-24ce25c2f5e2
+
+smoke = [1,0]
+fire = [0,1]
+smoke + fire = [1,1]
+
+=> unsafe if Prediction_vector[0] OR Prediction_vector[1]
+==================================================================================================================
 '''
 class Model:
     def __init__(self,input_shape,stride=(1,1),dilation=(1,1),kernel_n=3,pooling_size=(2,2),dropout_p=0.2,n_output=2,learning_rate=1e-3):
