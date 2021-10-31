@@ -3,9 +3,10 @@ from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPool2D
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import CategoricalCrossentropy
 from tensorflow.keras.metrics  import AUC, CategoricalAccuracy, FalsePositives
-#from cv2 import 
-#from numpy import
+from cv2 import imread, VideoCapture
+from numpy import array
 from os.path import exists
+from os import listdir
 from datetime import datetime
 
 class Logger:
@@ -98,7 +99,68 @@ class Model:
 
 class Data:
     def __init__(self):
-        pass
+        self.data_folder="./static/dataset/"
+    def get_data_dataset(self,mode=0,color_mode=0):
+        # mode=0 ; Image data will be returned.
+        # mode=1 ; Video data will be returned.
+        # color_mode=0 ; greyscale image/frame.
+        # color_mode=1 ; colour channel image/frame.
+        # color_mode=-1 ; color channel along with alpha channel image/frame.
+        if mode==1:
+            X=[]
+            Y=[]
+            directory=self.data_folder+"images/FIRE_SMOKE/"
+            for i in listdir(directory):
+                X.append(imread(directory+i,color_mode))
+                Y.append(1)
+            directory=self.data_folder+"images/NONE/"
+            for i in listdir(directory):
+                X.append(imread(directory+i,color_mode))
+                Y.append(0)
+            return array(X),array(Y)
+        else:
+            X=[]
+            Y=[]
+            directory=self.data_folder+"videos/FIRE_SMOKE/"
+            for i in listdir(directory):
+                cap=VideoCapture(directory+i)
+                while(cap.isOpened()):
+                    ret,frame=cap.read()
+                    if ret==True:
+                        X.append(imread(frame,color_mode))
+                        Y.append(1)
+            directory=self.data_folder+"videos/NONE/"
+            for i in listdir(directory):
+                cap=VideoCapture(directory+i)
+                while(cap.isOpened()):
+                    ret,frame=cap.read()
+                    if ret==True:
+                        X.append(imread(frame,color_mode))
+                        Y.append(0)
+            return array(X),array(Y)
+        def read_data(self,directory,mode=0,color_mode=0):
+            if mode==0:
+                X=[]
+                for i in listdir(directory):
+                    X.append(imread(directory+i,color_mode))
+                return array(X)
+            else:
+                X=[]
+                for i in listdir(directory):
+                cap=VideoCapture(directory+i)
+                while(cap.isOpened()):
+                    ret,frame=cap.read()
+                    if ret==True:
+                        X.append(imread(frame,color_mode))
+                return array(X)
+        def preprocessing(self):
+            
+
+
+
+        
+
+        
 
 
 model=Model(input_shape=(10,28,28,3))
