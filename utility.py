@@ -138,22 +138,22 @@ class Data:
                         X.append(imread(frame,color_mode))
                         Y.append(0)
             return array(X),array(Y)
-        def read_data(self,directory,mode=0,color_mode=0):
-            if mode==0:
-                X=[]
-                for i in listdir(directory):
-                    X.append(imread(directory+i,color_mode))
-                return array(X)
-            else:
-                X=[]
-                for i in listdir(directory):
+    def read_data(self,directory,mode=0,color_mode=0):
+        if mode==0:
+            X=[]
+            for i in listdir(directory):
+                X.append(imread(directory+i,color_mode))
+            return array(X)
+        else:
+            X=[]
+            for i in listdir(directory):
                 cap=VideoCapture(directory+i)
                 while(cap.isOpened()):
                     ret,frame=cap.read()
                     if ret==True:
                         X.append(imread(frame,color_mode))
-                return array(X)
-        def preprocessing(self):
+            return array(X)
+    def preprocessing(self):
             
 
 
