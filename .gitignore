@@ -1,2 +1,5 @@
 SFD/*
 log*.txt
+__pycache__/*
+static/plots/*
+*.h5
