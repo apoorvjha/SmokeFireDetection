@@ -4,12 +4,13 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import CategoricalCrossentropy
 from tensorflow.keras.metrics  import AUC, CategoricalAccuracy, FalsePositives
 from cv2 import imread, VideoCapture, GaussianBlur, cvtColor, INTER_CUBIC,COLOR_BGR2GRAY, resize, imshow, waitKey, destroyAllWindows
-from numpy import array, max
+from numpy import array, max, argmax
 from os.path import exists
-from os import listdir
+from os import listdir, rename
 from datetime import datetime
 from sklearn.model_selection import train_test_split
 from matplotlib import pyplot as plt
+from subprocess import call
 
 logging_mode="none"
 
@@ -80,8 +81,8 @@ class Model:
         self.history=self.model.fit(X,Y,batch_size=batch_size,epochs=epochs,validation_split=validation_split)
         log.log("  Model training completed.")
     def predict(self,X):
-        return self.model.predict(X)
         log.log("  Model completed the prediction.")
+        return self.model.predict(X)
     def getStats(self):
         log.log("--------------------------- Parameters -------------------------")
         log.log(f"Kernel size : {self.kernel_n}")
@@ -93,6 +94,13 @@ class Model:
         log.log(f"Output shape : {self.n_output}")
         log.log(f"Learning rate : {self.learning_rate}")
         log.log("----------------------------------------------------------------")
+    def accuracy(self,Y1,Y2,precision=4):
+        assert Y1.shape==Y2.shape , "Shape of both the parameters should be same."
+        count=0
+        for i in range(Y1.shape[0]):
+            if argmax(Y1[i])==argmax(Y2[i]):
+                count+=1
+        return round(((count * 100) / Y1.shape[0]),precision)
 
 
 class Data:
@@ -152,21 +160,29 @@ class Data:
         if mode==0:
             log.log("Loading data...")
             X=[]
+            files=[]
             for i in listdir(directory):
+                files.append(i)
                 X.append(self.preprocessing(imread(directory+i,color_mode)))
             log.log("Data loaded successfully.")
-            return X
+            return X,files
         else:
             log.log("Loading data...")
             X=[]
+            files=[]
+            frame_offset=[]
             for i in listdir(directory):
+                files.append(i)
                 cap=VideoCapture(directory+i)
+                offset=0
                 while(cap.isOpened()):
                     ret,frame=cap.read()
                     if ret==True:
+                        offset+=1
                         X.append(self.preprocessing(frame))
+                frame_offset.append(offset)
             log.log("Data loaded successfully.")
-            return X
+            return X,files,frame_offset
     def preprocessing(self,image):
         # Noise removal using gaussian smoothing operator.
         log.log("Applying preprocessing...")

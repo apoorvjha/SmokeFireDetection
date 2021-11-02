@@ -1,12 +1,5 @@
 import utility 
 
-def read_config(fname):
-    with open(fname,'r') as conf:
-        config=utility.json.load(conf)
-    pass
-
-
-
 def train(fname_in=None,fname_out="model.h5",mode=0,input_shape=(28,28,3),alpha=0):
     # mode=0; train only on images.
     # mode=1; train only on video frames.
@@ -37,7 +30,7 @@ def train(fname_in=None,fname_out="model.h5",mode=0,input_shape=(28,28,3),alpha=
     X=utility.array(X)
     Y=utility.array(Y)
     X_train, X_test, Y_train, Y_test=data.split(X,Y,test_ratio=0.2,shuffle=True,random_state=42)
-    model.fit(X_train,Y_train,batch_size=8,epochs=10,validation_split=0.2)
+    model.fit(X_train,Y_train,batch_size=4,epochs=15,validation_split=0.2)
     data.plot_in_time(model.history.history['loss'],
     model.history.history['val_loss'],
     "Loss", ["Metrics","Epochs"],["Train","Validation"],"Loss.png")
@@ -45,7 +38,7 @@ def train(fname_in=None,fname_out="model.h5",mode=0,input_shape=(28,28,3),alpha=
     model.history.history['val_categorical_accuracy'],
     "Loss", ["Metrics","Epochs"],["Train","Validation"],"accuracy.png")
     model.save_model(fname_out)
-    
-
+    prediction=model.predict(X_test)
+    print(f"Accuracy : {model.accuracy(prediction,Y_test)}")
 if __name__=="__main__":
     train()
