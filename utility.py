@@ -192,4 +192,5 @@ class Data:
         plt.ylabel(label[1])
         plt.legend(legend,loc="upper left")
         plt.savefig(self.plots_folder+fname)
+        plt.close()
 
