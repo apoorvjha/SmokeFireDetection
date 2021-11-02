@@ -23,11 +23,12 @@ def inference_engine(fname="model.h5",processing_directory="./static/processing/
         for i in range(prediction.shape[0]):
             if utility.argmax(i)==0:
                 # Unsafe
-                utility.rename(files[i],f"./static/prediction/unsafe/{files[i]}")
+                utility.rename(processing_directory+"images/"+files[i],f"./static/prediction/unsafe/{files[i]}")
             else:
                  # Safe
-                utility.rename(files[i],f"./static/prediction/safe/{files[i]}")
+                utility.rename(processing_directory+"images/"+files[i],f"./static/prediction/safe/{files[i]}")
     X,files,frame_offset=data.read_data(processing_directory+"videos/",mode=1,color_mode=color_mode)
+    print(X.shape,files,frame_offset)
     if len(X)!=0:   
         prediction=model.predict(X)
         i=0
@@ -40,9 +41,9 @@ def inference_engine(fname="model.h5",processing_directory="./static/processing/
                     unsafe_flag=True
                     break
             if unsafe_flag==True:
-                utility.rename(files[j],f"./static/prediction/unsafe/{files[j]}")
+                utility.rename(processing_directory+"videos/"+files[j],f"./static/prediction/unsafe/{files[j]}")
             else:
-                utility.rename(files[j],f"./static/prediction/safe/{files[j]}")
+                utility.rename(processing_directory+"videos/"+files[j],f"./static/prediction/safe/{files[j]}")
             i+=frame_offset[j]
             j+=1
     print("No more image or video present in processing directory.")
