@@ -3,3 +3,7 @@ log*.txt
 __pycache__/*
 static/plots/*
 *.h5
+static/prediction/safe/*
+static/prediction/unsafe/*
+static/processing/images/*
+static/processing/videos/*
