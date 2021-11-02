@@ -38,19 +38,14 @@ def train(fname_in=None,fname_out="model.h5",mode=0,input_shape=(28,28,3),alpha=
     Y=utility.array(Y)
     X_train, X_test, Y_train, Y_test=data.split(X,Y,test_ratio=0.2,shuffle=True,random_state=42)
     model.fit(X_train,Y_train,batch_size=8,epochs=10,validation_split=0.2)
-#    for i in model.history.history.keys():
-#        for j in model.history.history.keys():
-#            if i!=j:
-#                data.plot_in_time(model.history.history[i],
-#                model.history.history[j],
-#                f"{i} Vs {j}", ["Metrics","Epochs"],["Train","Validation"],f"{i}_vs_{j}.png")
+    data.plot_in_time(model.history.history['loss'],
+    model.history.history['val_loss'],
+    "Loss", ["Metrics","Epochs"],["Train","Validation"],"Loss.png")
+    data.plot_in_time(model.history.history['categorical_accuracy'],
+    model.history.history['val_categorical_accuracy'],
+    "Loss", ["Metrics","Epochs"],["Train","Validation"],"accuracy.png")
     model.save_model(fname_out)
     
-
-
-
-
-
 
 if __name__=="__main__":
     train()
