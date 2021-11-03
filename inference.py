@@ -17,7 +17,6 @@ def inference_engine(fname="model.h5",processing_directory="./static/processing/
     #while(len(utility.listdir(processing_directory+"images"))!=0 or len(utility.listdir(processing_directory+"videos"))!=0):
     X,files=data.read_data(processing_directory+"images/",mode=0,color_mode=color_mode)
     X=utility.array(X)
-    print(files)
     if X.shape[0]!=0:
         prediction=model.predict(X)
         for i in range(prediction.shape[0]):
