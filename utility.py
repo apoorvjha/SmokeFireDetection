@@ -6,13 +6,14 @@ from tensorflow.keras.metrics  import AUC, CategoricalAccuracy, FalsePositives
 from cv2 import imread, VideoCapture, GaussianBlur, cvtColor, INTER_CUBIC,COLOR_BGR2GRAY, resize, imshow, waitKey, destroyAllWindows
 from numpy import array, max, argmax
 from os.path import exists
-from os import listdir, rename
+from os import listdir, rename, environ
 from datetime import datetime
 from sklearn.model_selection import train_test_split
 from matplotlib import pyplot as plt
 from subprocess import call
-
-logging_mode="none"
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+logging_mode="debug"
 
 
 class Logger:
@@ -122,13 +123,14 @@ class Data:
             Y=[]
             directory=self.data_folder+"images/FIRE_SMOKE/"
             for i in listdir(directory):
-                X.append(self.preprocessing(imread(directory+i,color_mode)))
+                X.append(imread(directory+i,color_mode))
                 Y.append([1,0])
             directory=self.data_folder+"images/NONE/"
             for i in listdir(directory):
-                X.append(self.preprocessing(imread(directory+i,color_mode)))
+                X.append(imread(directory+i,color_mode))
                 Y.append([0,1])
             log.log("Dataset loaded successfully.")
+            X=self.parallelize(self.preprocessing, X,mode=1)
             return X,Y
         else:
             log.log("Retreiving data from the datset...")
@@ -142,7 +144,7 @@ class Data:
                     if color_mode==0:
                         frame=cvtColor(frame,COLOR_BGR2GRAY)
                     if ret==True:
-                        X.append(self.preprocessing(frame))
+                        X.append(frame)
                         Y.append([1,0])
             directory=self.data_folder+"videos/NONE/"
             for i in listdir(directory):
@@ -152,9 +154,10 @@ class Data:
                     if color_mode==0:
                         frame=cvtColor(frame,COLOR_BGR2GRAY)
                     if ret==True:
-                        X.append(self.preprocessing(frame))
+                        X.append(frame)
                         Y.append([0,1])
             log.log("Dataset loaded successfully.")
+            X=self.parallelize(self.preprocessing, X,mode=1)
             return X,Y
     def read_data(self,directory,mode=0,color_mode=0):
         if mode==0:
@@ -163,8 +166,9 @@ class Data:
             files=[]
             for i in listdir(directory):
                 files.append(i)
-                X.append(self.preprocessing(imread(directory+i,color_mode)))
+                X.append(imread(directory+i,color_mode))
             log.log("Data loaded successfully.")
+            X=self.parallelize(self.preprocessing, X,mode=1)
             return X,files
         else:
             log.log("Loading data...")
@@ -179,9 +183,10 @@ class Data:
                     ret,frame=cap.read()
                     if ret==True:
                         offset+=1
-                        X.append(self.preprocessing(frame))
+                        X.append(frame)
                 frame_offset.append(offset)
             log.log("Data loaded successfully.")
+            X=self.parallelize(self.preprocessing, X,mode=1)
             return X,files,frame_offset
     def preprocessing(self,image):
         # Noise removal using gaussian smoothing operator.
@@ -209,4 +214,15 @@ class Data:
         plt.legend(legend,loc="upper left")
         plt.savefig(self.plots_folder+fname)
         plt.close()
+    def parallelize(self,function_name,inputs,mode=0):
+        # mode=0; IO bound processes(MultiThreading)
+        # mode=1; CPU bound processes(MultiProcessing)
+        if mode==0:
+            with ThreadPoolExecutor() as executor:
+                result=executor.map(function_name,inputs) 
+            return list(result)
+        else:
+            with ProcessPoolExecutor() as executor:
+                result=executor.map(function_name,inputs) 
+            return list(result)
 
