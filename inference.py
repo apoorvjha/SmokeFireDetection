@@ -27,7 +27,7 @@ def inference_engine(fname="model.h5",processing_directory="./static/processing/
                  # Safe
                 utility.rename(processing_directory+"images/"+files[i],f"./static/prediction/safe/{files[i]}")
     X,files,frame_offset=data.read_data(processing_directory+"videos/",mode=1,color_mode=color_mode)
-    print(X.shape,files,frame_offset)
+    X=utility.array(X)
     if len(X)!=0:   
         prediction=model.predict(X)
         i=0
