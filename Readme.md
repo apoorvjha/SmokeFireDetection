@@ -27,19 +27,28 @@ The solution involves deep neural network architecture consisting of convolution
 
 # Data collection
 The source of dataset is Kaggle. The dataset is mix of video and images from various lighting conditons to account for diverse shade patterns. It is our shear effort to maintain balanced dataset which as free from inherent biases as far as possible.
-	1. https://www.kaggle.com/kutaykutlu/forest-fire
-	2. https://www.kaggle.com/ritupande/fire-detection-from-cctv
-	3. https://www.kaggle.com/phylake1337/fire-dataset
-	4. https://www.kaggle.com/slirq123/fire-smoke-and-neutral
+	##
+		1. https://www.kaggle.com/kutaykutlu/forest-fire
+		2. https://www.kaggle.com/ritupande/fire-detection-from-cctv
+		3. https://www.kaggle.com/phylake1337/fire-dataset
+		4. https://www.kaggle.com/slirq123/fire-smoke-and-neutral
 # Setup
 [Assuming python 3.x is already installed on the machine. (x>6)]
 Create ./static/predictions/safe and ./static/predictions/unsafe folders which will contain the files (videos or images) based on the class label they are attached by the model. Initially the files which needs to be classified should be kept in ./static/processing/images or ./static/processing/images based on type of media. The script inference.py will pick the files from this folder and apply the classification and accordingly arrange them in the ./static/prediction folder.
 Please run below commands to setup the environment accordingly.
 The plots related to accuracy and loss values between training set and validation set is created in ./static/plots folder
 The list of python packages required to run the project at your end you need requirements.txt file which is included in the root folder of repository.
-	1. mkdir -p ./static/prediction/safe
-	2. mkdir -p ./static/prediction/unsafe
-	3. mkdir -p ./static/processing/images
-	4. mkdir -p ./static/processing/videos
-	5. mkdir -p ./static/plots
-	6. pip install -r requirements.txt
+	##
+		1. mkdir -p ./static/prediction/safe
+		2. mkdir -p ./static/prediction/unsafe
+		3. mkdir -p ./static/processing/images
+		4. mkdir -p ./static/processing/videos
+		5. mkdir -p ./static/plots
+		6. pip install -r requirements.txt
+# Execution
+	## Follow below procedure to run the code
+		1. In train.py, pass fname_out = "[NAME_OF_MODEL_FILE].h5" as argument and then run the train file as:
+			$ pthon train.py
+		2. In inference.py, pass fname = "[NAME_OF_MODEL_FILE].h5" which should be exactly same as passed into above step in train method. Then execute he file as:
+			$ python inference.py
+	# Note : Keep all the images that needs to be inferenced into safe and unsafe classes into the ./sattic/processing/images folder and videos into ./static/processing/videos folder before executing inference.py file. 
