@@ -3,7 +3,7 @@ from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPool2D
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import CategoricalCrossentropy
 from tensorflow.keras.metrics  import AUC, CategoricalAccuracy, FalsePositives
-from cv2 import imread, VideoCapture, GaussianBlur, cvtColor, INTER_CUBIC,COLOR_BGR2GRAY, resize, imshow, waitKey, destroyAllWindows
+from cv2 import imread, VideoCapture, GaussianBlur, cvtColor, CAP_PROP_FRAME_COUNT, INTER_CUBIC,COLOR_BGR2GRAY, resize, imshow, waitKey, destroyAllWindows
 from numpy import array, max, argmax
 from os.path import exists
 from os import listdir, rename, environ
@@ -110,6 +110,7 @@ class Data:
         self.data_folder="./static/dataset/"
         self.dimension=(widthX,widthY)
         self.plots_folder="./static/plots/"
+        #self.sampling_ratio=10
         log.log("Data handler initialized.")
     def get_data_dataset(self,mode=0,color_mode=0):
         # mode=0 ; Image data will be returned.
@@ -123,14 +124,14 @@ class Data:
             Y=[]
             directory=self.data_folder+"images/FIRE_SMOKE/"
             for i in listdir(directory):
-                X.append(imread(directory+i,color_mode))
+                X.append(self.preprocessing(imread(directory+i,color_mode)))
                 Y.append([1,0])
             directory=self.data_folder+"images/NONE/"
             for i in listdir(directory):
-                X.append(imread(directory+i,color_mode))
+                X.append(self.preprocessing(imread(directory+i,color_mode)))
                 Y.append([0,1])
             log.log("Dataset loaded successfully.")
-            X=self.parallelize(self.preprocessing, X,mode=1)
+            #X=self.parallelize(self.preprocessing, X,mode=1)
             return X,Y
         else:
             log.log("Retreiving data from the datset...")
@@ -139,25 +140,37 @@ class Data:
             directory=self.data_folder+"videos/FIRE_SMOKE/"
             for i in listdir(directory):
                 cap=VideoCapture(directory+i)
+                frame_count=0
                 while(cap.isOpened()):
                     ret,frame=cap.read()
+                    frame_count+=1
                     if color_mode==0:
                         frame=cvtColor(frame,COLOR_BGR2GRAY)
                     if ret==True:
-                        X.append(frame)
+                        X.append(self.preprocessing(frame))
                         Y.append([1,0])
+                    else:
+                        break
+                cap.release()
+                destroyAllWindows()
             directory=self.data_folder+"videos/NONE/"
             for i in listdir(directory):
                 cap=VideoCapture(directory+i)
+                frame_count=0
                 while(cap.isOpened()):
                     ret,frame=cap.read()
+                    frame_count+=1
                     if color_mode==0:
                         frame=cvtColor(frame,COLOR_BGR2GRAY)
                     if ret==True:
-                        X.append(frame)
+                        X.append(self.preprocessing(frame))
                         Y.append([0,1])
+                    else:
+                        break
+                cap.release()
+                destroyAllWindows()
             log.log("Dataset loaded successfully.")
-            X=self.parallelize(self.preprocessing, X,mode=1)
+            #X=self.parallelize(self.preprocessing, X,mode=1)
             return X,Y
     def read_data(self,directory,mode=0,color_mode=0):
         if mode==0:
@@ -166,9 +179,9 @@ class Data:
             files=[]
             for i in listdir(directory):
                 files.append(i)
-                X.append(imread(directory+i,color_mode))
+                X.append(self.preprocessing(imread(directory+i,color_mode)))
             log.log("Data loaded successfully.")
-            X=self.parallelize(self.preprocessing, X,mode=1)
+            #X=self.parallelize(self.preprocessing, X,mode=1)
             return X,files
         else:
             log.log("Loading data...")
@@ -178,15 +191,20 @@ class Data:
             for i in listdir(directory):
                 files.append(i)
                 cap=VideoCapture(directory+i)
+                #print(cap.get(CAP_PROP_FRAME_COUNT))
                 offset=0
                 while(cap.isOpened()):
                     ret,frame=cap.read()
+                    offset+=1
                     if ret==True:
-                        offset+=1
-                        X.append(frame)
+                        X.append(self.preprocessing(frame))
+                    else:
+                        break
+                cap.release()
+                destroyAllWindows()
                 frame_offset.append(offset)
             log.log("Data loaded successfully.")
-            X=self.parallelize(self.preprocessing, X,mode=1)
+            #X=self.parallelize(self.preprocessing, X,mode=1)
             return X,files,frame_offset
     def preprocessing(self,image):
         # Noise removal using gaussian smoothing operator.
@@ -218,11 +236,13 @@ class Data:
         # mode=0; IO bound processes(MultiThreading)
         # mode=1; CPU bound processes(MultiProcessing)
         if mode==0:
+            log.log("Executing the job in multithreading mode.")
             with ThreadPoolExecutor() as executor:
                 result=executor.map(function_name,inputs) 
             return list(result)
         else:
-            with ProcessPoolExecutor() as executor:
+            log.log("Executing the job in multiprocessing mode.")
+            with ProcessPoolExecutor(max_workers=10) as executor:
                 result=executor.map(function_name,inputs) 
             return list(result)
 
