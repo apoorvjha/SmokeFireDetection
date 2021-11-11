@@ -13,7 +13,7 @@ from matplotlib import pyplot as plt
 from subprocess import call
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-logging_mode="debug"
+logging_mode="info"
 
 
 class Logger:
@@ -85,6 +85,7 @@ class Model:
         log.log("  Model completed the prediction.")
         return self.model.predict(X)
     def getStats(self):
+        print(self.model.summary())
         log.log("--------------------------- Parameters -------------------------")
         log.log(f"Kernel size : {self.kernel_n}")
         log.log(f"Input shape : {self.input_shape}") 
