@@ -20,7 +20,7 @@ def inference_engine(fname="model.h5",processing_directory="./static/processing/
     if X.shape[0]!=0:
         prediction=model.predict(X)
         for i in range(prediction.shape[0]):
-            if utility.argmax(i)==0:
+            if utility.argmax(prediction[i])==0:
                 # Unsafe
                 utility.rename(processing_directory+"images/"+files[i],f"./static/prediction/unsafe/{files[i]}")
             else:
