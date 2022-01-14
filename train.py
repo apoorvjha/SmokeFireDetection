@@ -1,13 +1,13 @@
 import utility 
 
-def train(fname_in="model.h5",fname_out="model.h5",mode=0,input_shape=(28,28,3),alpha=0):
+def train(fname_in="model.h5",fname_out="model.h5",mode=0,input_shape=(32,32,3),alpha=0):
     # mode=0; train only on images.
     # mode=1; train only on video frames.
     # mode=2; train in a holistic fashion.
     if fname_in==None:
-        model=utility.Model(input_shape=input_shape)
+        model=utility.Model_CNN(input_shape=input_shape)
     else:
-        model=utility.Model()
+        model=utility.Model_CNN()
         model.load_model(fname_in)
     if len(input_shape)==3:
         color_mode=1-alpha
@@ -30,15 +30,15 @@ def train(fname_in="model.h5",fname_out="model.h5",mode=0,input_shape=(28,28,3),
     X=utility.array(X)
     Y=utility.array(Y)
     X_train, X_test, Y_train, Y_test=data.split(X,Y,test_ratio=0.2,shuffle=True,random_state=42)
-    model.fit(X_train,Y_train,batch_size=4,epochs=45,validation_split=0.2)
+    model.fit(X_train,Y_train,batch_size=4,epochs=10,validation_split=0.2)
     data.plot_in_time(model.history.history['loss'],
     model.history.history['val_loss'],
     "Loss", ["Metrics","Epochs"],["Train","Validation"],"Loss.png")
     data.plot_in_time(model.history.history['categorical_accuracy'],
     model.history.history['val_categorical_accuracy'],
-    "Loss", ["Metrics","Epochs"],["Train","Validation"],"accuracy.png")
+    "Accuracy", ["Metrics","Epochs"],["Train","Validation"],"accuracy.png")
     model.save_model(fname_out)
     prediction=model.predict(X_test)
     print(f"Accuracy : {model.accuracy(prediction,Y_test)}")
 if __name__=="__main__":
-    train(fname_in="model.h5")
+    train(fname_in=None)
