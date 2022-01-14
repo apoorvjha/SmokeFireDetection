@@ -1,9 +1,10 @@
-from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.models import Sequential, load_model, Model
 from tensorflow.keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPool2D
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import CategoricalCrossentropy
 from tensorflow.keras.metrics  import AUC, CategoricalAccuracy, FalsePositives
 from cv2 import imread, VideoCapture, GaussianBlur, cvtColor, CAP_PROP_FRAME_COUNT, INTER_CUBIC,COLOR_BGR2GRAY, resize, imshow, waitKey, destroyAllWindows
+from tensorflow.keras.applications.vgg19 import VGG19
 from numpy import array, max, argmax
 from os.path import exists
 from os import listdir, rename, environ
@@ -12,6 +13,7 @@ from sklearn.model_selection import train_test_split
 from matplotlib import pyplot as plt
 from subprocess import call
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from time import time
 environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 logging_mode="info"
 
@@ -29,44 +31,62 @@ class Logger:
 
 log=Logger()
 
-class Model:
-    def __init__(self,input_shape=None,stride=(1,1),dilation=(1,1),kernel_n=3,pooling_size=(2,2),dropout_p=0.2,n_output=2,learning_rate=1e-3):
+class Model_CNN:
+    def __init__(self,transfer_learning=True,input_shape=None,stride=(1,1),dilation=(1,1),kernel_n=3,pooling_size=(2,2),dropout_p=0.2,n_output=2,learning_rate=1e-3):
         log.log("  Model Initilaizing...")
         if input_shape!=None:
-            self.kernel_n=kernel_n
-            self.input_shape=input_shape 
-            self.stride=stride      # skips, kernel makes at every convolution
-            self.dilation=dilation  # kernel coverage
-            self.pooling_size=pooling_size
-            self.dropout_p=dropout_p
-            self.n_output=n_output
-            self.learning_rate=learning_rate
-            self.model=Sequential()
-            self.model.add(Conv2D(filters=16,kernel_size=self.kernel_n,activation='relu',
-            padding='same',input_shape=self.input_shape,strides=self.stride, dilation_rate=self.dilation))
-            self.model.add(MaxPool2D(pool_size=self.pooling_size))
-            self.model.add(Conv2D(filters=32,kernel_size=self.kernel_n,activation='relu',
-            padding='same',strides=self.stride, dilation_rate=self.dilation))
-            self.model.add(MaxPool2D(pool_size=self.pooling_size))
-            self.model.add(Conv2D(filters=64,kernel_size=self.kernel_n,activation='relu',
-            padding='same',strides=self.stride, dilation_rate=self.dilation))
-            self.model.add(MaxPool2D(pool_size=self.pooling_size))
-            self.model.add(Conv2D(filters=128,kernel_size=self.kernel_n,activation='relu',
-            padding='same',strides=self.stride, dilation_rate=self.dilation))
-            self.model.add(MaxPool2D(pool_size=self.pooling_size))
-            self.model.add(Flatten())
-            self.model.add(Dense(units=self.input_shape[0] * 128,activation='relu'))
-            self.model.add(Dropout(self.dropout_p))
-            self.model.add(Dense(units=128,activation='relu'))
-            self.model.add(Dropout(self.dropout_p))
-            self.model.add(Dense(units=64,activation='relu'))
-            self.model.add(Dropout(self.dropout_p))
-            self.model.add(Dense(units=32,activation='relu'))
-            self.model.add(Dropout(self.dropout_p))
-            self.model.add(Dense(units=16,activation='relu'))
-            self.model.add(Dropout(self.dropout_p))
-            self.model.add(Dense(units=self.n_output,activation="softmax"))
-            self.model.compile(optimizer=Adam(learning_rate=self.learning_rate),loss=CategoricalCrossentropy(),metrics=[AUC(),CategoricalAccuracy(),FalsePositives()])
+            if transfer_learning:
+                vgg_top = VGG19(weights='imagenet',input_shape=input_shape,classes=n_output,include_top=False)
+                for layer in vgg_top.layers:
+                    layer.trainable=False
+                vgg_fc = Flatten() (vgg_top.output)
+                vgg_fc = Dense(units=256,activation='relu')(vgg_fc)
+                vgg_fc = Dropout(dropout_p)(vgg_fc)
+                vgg_fc = Dense(units=128,activation='relu')(vgg_fc)
+                vgg_fc = Dropout(dropout_p)(vgg_fc)
+                vgg_fc = Dense(units=64,activation='relu')(vgg_fc)
+                vgg_fc = Dropout(dropout_p)(vgg_fc)
+                vgg_fc = Dense(units=32,activation='relu')(vgg_fc)
+                vgg_fc = Dropout(dropout_p)(vgg_fc)
+                vgg_fc = Dense(units=16,activation='relu')(vgg_fc)
+                vgg_fc = Dropout(dropout_p)(vgg_fc)
+                vgg_out = Dense(units=n_output,activation='softmax')(vgg_fc)  
+                self.model = Model(inputs=vgg_top.input,outputs=vgg_out)
+            else:
+                self.kernel_n=kernel_n
+                self.input_shape=input_shape 
+                self.stride=stride      # skips, kernel makes at every convolution
+                self.dilation=dilation  # kernel coverage
+                self.pooling_size=pooling_size
+                self.dropout_p=dropout_p
+                self.n_output=n_output
+                self.learning_rate=learning_rate
+                self.model=Sequential()
+                self.model.add(Conv2D(filters=16,kernel_size=self.kernel_n,activation='relu',
+                padding='same',input_shape=self.input_shape,strides=self.stride, dilation_rate=self.dilation))
+                self.model.add(MaxPool2D(pool_size=self.pooling_size))
+                self.model.add(Conv2D(filters=32,kernel_size=self.kernel_n,activation='relu',
+                padding='same',strides=self.stride, dilation_rate=self.dilation))
+                self.model.add(MaxPool2D(pool_size=self.pooling_size))
+                self.model.add(Conv2D(filters=64,kernel_size=self.kernel_n,activation='relu',
+                padding='same',strides=self.stride, dilation_rate=self.dilation))
+                self.model.add(MaxPool2D(pool_size=self.pooling_size))
+                self.model.add(Conv2D(filters=128,kernel_size=self.kernel_n,activation='relu',
+                padding='same',strides=self.stride, dilation_rate=self.dilation))
+                self.model.add(MaxPool2D(pool_size=self.pooling_size))
+                self.model.add(Flatten())
+                self.model.add(Dense(units=self.input_shape[0] * 128,activation='relu'))
+                self.model.add(Dropout(self.dropout_p))
+                self.model.add(Dense(units=128,activation='relu'))
+                self.model.add(Dropout(self.dropout_p))
+                self.model.add(Dense(units=64,activation='relu'))
+                self.model.add(Dropout(self.dropout_p))
+                self.model.add(Dense(units=32,activation='relu'))
+                self.model.add(Dropout(self.dropout_p))
+                self.model.add(Dense(units=16,activation='relu'))
+                self.model.add(Dropout(self.dropout_p))
+                self.model.add(Dense(units=self.n_output,activation="softmax"))
+            self.model.compile(optimizer=Adam(learning_rate=learning_rate),loss=CategoricalCrossentropy(),metrics=[AUC(),CategoricalAccuracy(),FalsePositives()])
         log.log("  Model Initialized!")
     def get_instnce(self):
         return self.model
@@ -79,7 +99,9 @@ class Model:
         log.log(f"  Model loaded from {fname} file.")
     def fit(self,X,Y,batch_size,epochs,validation_split=0.2):
         log.log("  Model training started.")
-        self.history=self.model.fit(X,Y,batch_size=batch_size,epochs=epochs,validation_split=validation_split)
+        start=time()
+        self.history=self.model.fit(X,Y,batch_size=batch_size,epochs=epochs,validation_split=validation_split,verbose=0)
+        print("Training took " + str(round(time()-start,4)) + " Seconds.")
         log.log("  Model training completed.")
     def predict(self,X):
         log.log("  Model completed the prediction.")
