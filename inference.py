@@ -1,13 +1,13 @@
 import utility
 import train
 
-def inference_engine(fname="model.h5",processing_directory="./static/processing/",input_shape=(28,28,3),alpha=0):
+def inference_engine(fname="model.h5",processing_directory="./static/processing/",input_shape=(32,32,3),alpha=0):
     if fname==None:
         train.train()
-        model=utility.Model()
+        model=utility.Model_CNN()()
         model.load_model("model.h5")
     else:
-        model=utility.Model()
+        model=utility.Model_CNN()
         model.load_model(fname)
     if len(input_shape)==3:
         color_mode=1-alpha
