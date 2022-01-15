@@ -1,6 +1,6 @@
 import utility 
 
-def train(fname_in="model.h5",fname_out="model.h5",mode=0,input_shape=(32,32,3),alpha=0):
+def train(fname_in="model.h5",fname_out="model.h5",mode=0,epochs=10,input_shape=(32,32,3),alpha=0):
     # mode=0; train only on images.
     # mode=1; train only on video frames.
     # mode=2; train in a holistic fashion.
@@ -40,5 +40,6 @@ def train(fname_in="model.h5",fname_out="model.h5",mode=0,input_shape=(32,32,3),
     model.save_model(fname_out)
     prediction=model.predict(X_test)
     print(f"Accuracy : {model.accuracy(prediction,Y_test)}")
+    return model.accuracy(prediction,Y_test)
 if __name__=="__main__":
     train(fname_in=None)
