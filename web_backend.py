@@ -7,14 +7,6 @@ import train
 app=Flask(__name__)
 app.secret_key="qazwsx@2022"
 
-@app.route('/')
-def Home():
-    return "<h1>Home</h1>"
-
-@app.route('/about')
-def About():
-    return "<h1>About us</h1>"
-
 @app.route('/register',methods=['GET','POST'])
 def Register():
     if request.method == 'POST':
@@ -50,24 +42,28 @@ def Login():
     else:
         return {"status" : 404, "message" : "Method not supported!", "token" : ""}
 
+@app.route('/logout')
+def Logout():
+    session.pop('username',None)
+    session.pop('token',None)
+    return {"status" : 200, "message" : "Logout successfull"}
 
 @app.route('/api')
 def API_Home():
     return "<h1>api home</h1>"
 
-@app.route('/api/fetch/<N_Smoke_Fire_Images>')
-def API_Fetch(N_Smoke_Fire_Images):
-    return f"{N_Smoke_Fire_Images} smoke and fire images are selected and served randomly!"
-
 @app.route('/api/train/<Epochs>')
 def API_Train(Epochs):
-    accuracy=train(epochs=Epochs)
-    # return paths for plots.
-    return f"<h1>The {accuracy} acheived!</h1>"
+    if Auth.checkToken(session['username'], session['token']):
+        return {"status" : 404, "message" : "Token does not exists!", "response" : {}}
+    else:    
+        accuracy=train(epochs=Epochs)
+        # return paths for plots.
+        return f"<h1>The {accuracy} acheived!</h1>"
 
 @app.route('/api/predict/image',methods=['POST'])
 def API_Predict_Image():
-    if session['token'] == "":
+    if Auth.checkToken(session['username'], session['token']):
         return {"status" : 404, "message" : "Token does not exists!", "response" : {}}  
     if request.method == 'POST':
         image=request.files['image']
@@ -76,7 +72,7 @@ def API_Predict_Image():
         model=utility.Model_CNN()
         model.load_model("model.h5")
         data=utility.Data(widthX=32,widthY=32)
-        X,files=data.read_data(processing_directory+"images/",mode=0,color_mode=1)
+        X,files=data.read_data('./static/uploaded/images/',mode=0,color_mode=1)
         X=utility.array(X)
         res={}
         if X.shape[0]!=0:
@@ -92,6 +88,41 @@ def API_Predict_Image():
     else:
         return {"status" : 404, "message" : "unsupported method.", "response" : {}}
 
+
+@app.route('/api/predict/video',methods=['POST'])
+def API_Predict_Video():
+    if Auth.checkToken(session['username'], session['token']):
+        return {"status" : 404, "message" : "Token does not exists!", "response" : {}}  
+    if request.method == 'POST':
+        video=request.files['video']
+        filename=secure_filename(token + video.filename)
+        image.save('./static/uploaded/videos/'+ filename)
+        model=utility.Model_CNN()
+        model.load_model("model.h5")
+        data=utility.Data(widthX=32,widthY=32)
+        X,files=data.read_data('./static/uploaded/videos/',mode=0,color_mode=1)
+        X=utility.array(X)
+        res={}
+    if len(X)!=0:   
+        prediction=model.predict(X)
+        i=0
+        j=0
+        while(i<prediction.shape[0]):
+            unsafe_flag=False
+            for k in range(i,i+frame_offset[j]):
+               if utility.argmax(prediction[k])==0:
+                    # Unsafe
+                    unsafe_flag=True
+                    break
+            if unsafe_flag==True:
+                res[filename] = "unsafe"
+            else:
+                res[filename] = "safe"
+            i+=frame_offset[j]
+            j+=1
+        return {"status" : 200, "message" : "Inference completed Successfully!", "response" : res}
+    else:
+        return {"status" : 404, "message" : "unsupported method.", "response" : {}}
 
 
 if __name__=='__main__':
