@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS, cross_origin
 from werkzeug import secure_filename
 import Auth
 import utility
@@ -6,8 +7,11 @@ import train
 
 app=Flask(__name__)
 app.secret_key="qazwsx@2022"
+cors=CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route('/register',methods=['GET','POST'])
+@cross_origin()
 def Register():
     if request.method == 'POST':
         username=request.form['username']
@@ -24,6 +28,7 @@ def Register():
         return {"status" : 404, "message" : "Method not supported!"}
 
 @app.route('/login',methods=['GET','POST'])
+@cross_origin()
 def Login():
     if request.method == 'POST':
         username=request.form['username']
@@ -43,16 +48,19 @@ def Login():
         return {"status" : 404, "message" : "Method not supported!", "token" : ""}
 
 @app.route('/logout')
+@cross_origin()
 def Logout():
     session.pop('username',None)
     session.pop('token',None)
     return {"status" : 200, "message" : "Logout successfull"}
 
 @app.route('/api')
+@cross_origin()
 def API_Home():
     return "<h1>api home</h1>"
 
 @app.route('/api/train/<Epochs>')
+@cross_origin()
 def API_Train(Epochs):
     if Auth.checkToken(session['username'], session['token']):
         return {"status" : 404, "message" : "Token does not exists!", "response" : {}}
@@ -62,6 +70,7 @@ def API_Train(Epochs):
         return f"<h1>The {accuracy} acheived!</h1>"
 
 @app.route('/api/predict/image',methods=['POST'])
+@cross_origin()
 def API_Predict_Image():
     if Auth.checkToken(session['username'], session['token']):
         return {"status" : 404, "message" : "Token does not exists!", "response" : {}}  
@@ -90,6 +99,7 @@ def API_Predict_Image():
 
 
 @app.route('/api/predict/video',methods=['POST'])
+@cross_origin()
 def API_Predict_Video():
     if Auth.checkToken(session['username'], session['token']):
         return {"status" : 404, "message" : "Token does not exists!", "response" : {}}  
