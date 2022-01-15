@@ -25,7 +25,7 @@ class DataBase:
 def register(username,password):
     db=DataBase()
     con=db.dbServerlogin()
-    query="SELECT count(*) FROM `credentials` WHERE `username`=%s AND `password=%s`"
+    query="SELECT count(*) FROM `credentials` WHERE `username`=%s"
     val=(username,password)
     count=db.executeQuery(con, query, val)
     if count!=0:
@@ -39,14 +39,28 @@ def register(username,password):
 def login(username,password):
     db=DataBase()
     con=db.dbServerlogin()
-    query="SELECT count(*) FROM `credentials` WHERE `username`=%s AND `password=%s`"
+    query="SELECT count(*) FROM `credentials` WHERE `username`=%s AND `password`=%s"
     val=(username,password)
     count=db.executeQuery(con, query, val)
     if count!=1:
         return 404, "Incorrect credentials. Please try again!"
     else:
         token=''.join(choices(ascii_uppercase + digits + ascii_lowercase, k = 10))
+        query="INSERT INTO `credentials`(`token`) VALUES(%s)"
+        val=(token)
+        db.executeQuery(con, query, val, ReturnMode=False)
         return 200, "Login Successfull.", token
+
+def checkToken(username,token):
+    db=DataBase()
+    con=db.dbServerlogin()
+    query="SELECT count(*) FROM `credentials` WHERE `username`=%s AND `token`=%s"
+    val=(username,token)
+    count=db.executeQuery(con, query, val)
+    if count!=1:
+        return False
+    else:
+        return True
 
 
 
