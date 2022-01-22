@@ -1,0 +1,59 @@
+body{
+    background-image: url('../icons/background.jfif');
+    height : 600px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover; 
+}
+.footer{
+    background-color: black;
+    color: blanchedalmond;
+    height : 50px;
+}
+.profile{
+    height : 50px;
+    width : 50px;
+    border : 1px solid black;
+    border-radius : 50px;
+    }
+.form {
+    background-color: white;
+    padding: 50px;
+    width : 700px;
+	border-style: groove;
+	border-right-color:grey;
+	border-bottom-width: 10px;
+	border-right-width: 10px;
+	border-radius:20px;
+	border-bottom-color:grey;
+	border-top-color:orange;
+}
+.form1 {
+    background-color: white;
+    padding: 50px;
+    width : 900px;
+	border-style: groove;
+	border-right-color:grey;
+	border-bottom-width: 10px;
+	border-right-width: 10px;
+	border-radius:20px;
+	border-bottom-color:grey;
+	border-top-color:orange;
+}
+.user-data-div th{
+    background-color: blue;
+    color: white;
+    padding: 10px;
+}
+.user-data-div td{
+    background-color: white;
+    color: black;
+    padding: 10px;
+}
+
+.settings{
+    background-color: white;
+    color : black;
+    padding : 10px;
+    width : 700px;
+}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Documentation{% endblock %}
+{% block main %}
+    <center>
+    <div class="settings" id="settings">
+        <b>Change Type</b> : <select id="settings_mode" onChange="set_settings_param()">
+            <option value="99">Select</option>
+            <option value="0">User Name</option>
+            <option value="1">Password</option>
+            <option value="2">Email</option>
+            <option value=3>Profile Picture</option>
+        </select>
+    </div>
+    </center>
+{% endblock %}
