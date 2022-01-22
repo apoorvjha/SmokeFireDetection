@@ -1,21 +1,27 @@
-from flask import Flask
+from flask import Flask, session, request,jsonify
 from flask_cors import CORS, cross_origin
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 import Auth
 import utility
 import train
+import json
 
 app=Flask(__name__)
 app.secret_key="qazwsx@2022"
 cors=CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+@app.route('/')
+@cross_origin()
+def Home():
+    return "<h1>Home</h1>"
+
 @app.route('/register',methods=['GET','POST'])
 @cross_origin()
 def Register():
     if request.method == 'POST':
-        username=request.form['username']
-        password=request.form['password']
+        username=json.loads(list(request.form.keys())[0])["username"]
+        password=json.loads(list(request.form.keys())[0])["password"]
         status, message = Auth.register(username,password)
         return {"status" : status, "message" : message}
 
@@ -31,18 +37,18 @@ def Register():
 @cross_origin()
 def Login():
     if request.method == 'POST':
-        username=request.form['username']
-        password=request.form['password']
-        status, message, token = Auth.check(username,password)
-        if status == 200 : 
-            session['username'] = username
-            session['token'] = token 
-        return {"status" : status, "message" : message, "token" : token}
+        username=json.loads(list(request.form.keys())[0])["username"]
+        password=json.loads(list(request.form.keys())[0])["password"]
+        status, message, token = Auth.login(username,password)
+        #if status == 200 : 
+            #session['username'] = username
+            #session['token'] = token 
+        return jsonify({"status" : status, "message" : message, "token" : token})
 
     elif request.method == 'GET':
         username=request.args.get('username')
         password=request.args.get('password')
-        status, message, token = Auth.check(username,password) 
+        status, message, token = Auth.login(username,password) 
         return {"status" : status, "message" : message, "token" : token}
     else:
         return {"status" : 404, "message" : "Method not supported!", "token" : ""}

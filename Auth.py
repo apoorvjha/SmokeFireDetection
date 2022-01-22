@@ -26,9 +26,9 @@ def register(username,password):
     db=DataBase()
     con=db.dbServerlogin()
     query="SELECT count(*) FROM `credentials` WHERE `username`=%s"
-    val=(username,password)
+    val=(username,)
     count=db.executeQuery(con, query, val)
-    if count!=0:
+    if count[0][0]!=0:
         return 300, "User with same username already exists."
     else:
         query="INSERT INTO `credentials`(`username`,`password`) VALUES(%s,%s)"
@@ -42,12 +42,13 @@ def login(username,password):
     query="SELECT count(*) FROM `credentials` WHERE `username`=%s AND `password`=%s"
     val=(username,password)
     count=db.executeQuery(con, query, val)
-    if count!=1:
-        return 404, "Incorrect credentials. Please try again!"
+    print(count[0][0])
+    if count[0][0]!=1:
+        return 404, "Incorrect credentials. Please try again!", ""
     else:
         token=''.join(choices(ascii_uppercase + digits + ascii_lowercase, k = 10))
-        query="INSERT INTO `credentials`(`token`) VALUES(%s)"
-        val=(token)
+        query="UPDATE `credentials` SET `token`=%s WHERE `username`=%s"
+        val=(token,username)
         db.executeQuery(con, query, val, ReturnMode=False)
         return 200, "Login Successfull.", token
 
@@ -57,7 +58,7 @@ def checkToken(username,token):
     query="SELECT count(*) FROM `credentials` WHERE `username`=%s AND `token`=%s"
     val=(username,token)
     count=db.executeQuery(con, query, val)
-    if count!=1:
+    if count[0][0]!=1:
         return False
     else:
         return True
