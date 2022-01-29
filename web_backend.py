@@ -2,6 +2,10 @@ from flask import Flask, render_template, redirect, flash, request, url_for, ses
 from werkzeug.utils import secure_filename
 import json
 import Auth
+import time
+import os
+from os import listdir
+import utility
 
 app=Flask(__name__)
 app.secret_key="qazwsx@2022"
@@ -137,6 +141,77 @@ def changeProfPic():
             profilePic.save(fileName)
             flash("Profile pic changed successfully!","alert alert-success")
             return redirect(url_for('index'))
+        else:
+            return {"status" : 404}
+    else:
+        return {"status" : 500}
+
+@app.route('/inference',methods=['POST'])
+def inference():
+    if session['userId']:
+        if request.method=='POST':
+            image=request.files['file']	
+            print(image.filename)
+            fileName=str(session['userId']) + secure_filename(image.filename)
+            image.save('static/uploaded/'+fileName)
+            start=time.time()
+            data=utility.Data(widthX=32,widthY=32)
+            X=[]
+            X.append(data.preprocessing(utility.imread('static/uploaded/'+fileName,1)))
+            X=utility.array(X)
+            model=utility.Model_CNN()
+            model.load_model("model.h5")
+            prediction=model.predict(X)
+            print(prediction)
+            if utility.argmax(prediction[0])==0:
+                pred="Unsafe"
+            else:
+                pred="Safe"
+            time_taken=time.time() - start
+            return {"image" : 'static/uploaded/'+fileName,"prediction" : pred, "status" : 200,"response_time" : round(time_taken,3)}
+        else:
+            return {"status" : 404}
+    else:
+        return {"status" : 500}
+@app.route('/getModelStats')
+def getModelStats():
+    if session['userId']:
+        if request.method=='GET':
+            response={"params" : [],"status" : 200}
+            response["params"].append({"name" : "Logging Mode","value" : utility.logging_mode})
+            response["params"].append({"name" : "Test ratio","value" : 0.2})
+            response["params"].append({"name" : "n_output","value" : 2})
+            response["params"].append({"name" : "dropout_probability","value" : 0.2})
+            response["params"].append({"name" : "learning_rate","value" : 1e-3})
+            response["params"].append({"name" : "batch_size","value" : 4})
+            response["params"].append({"name" : "epochs","value" : 10})
+            response["params"].append({"name" : "model_name","value" : "model.h5"})
+            response["params"].append({"name" : "validation_split","value" : 0.2})
+            response["params"].append({"name" : "random_state","value" : 42})
+            response["params"].append({"name" : "verbose","value" : 0})
+            response["params"].append({"name" : "Interpolation","value" : "INTER_CUBIC"}) 
+            return response
+        else:
+            return {"status" : 404}
+    else:
+        return {"status" : 500}
+
+@app.route('/getDataset')
+def getDataset():
+    if session['userId']:
+        if request.method=='GET':
+            response={"images" : [], "videos" : [],"status" : 200}
+            path='./static/dataset/images/'
+            directories=['FIRE_SMOKE','NONE']
+            for i in range(len(directories)):
+                for j in listdir(path+directories[i]+'/'):
+                    response["images"].append({"name" : directories[i],"image" : path+directories[i]+'/'+j})
+            path='./static/dataset/videos/'
+            directories=['FIRE_SMOKE','NONE']
+            for i in range(len(directories)):
+                for j in listdir(path+directories[i]+'/'):
+                    response["videos"].append({"name" : directories[i],"video" : path+directories[i]+'/'+j})
+            return response
         else:
             return {"status" : 404}
     else:
