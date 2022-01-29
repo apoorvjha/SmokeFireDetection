@@ -7,3 +7,5 @@ static/prediction/safe/*
 static/prediction/unsafe/*
 static/processing/images/*
 static/processing/videos/*
+static/uploaded/*
+static/doc/*
