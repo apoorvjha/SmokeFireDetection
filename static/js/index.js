@@ -373,3 +373,147 @@ function validateUpload(){
 	}
 
 }
+
+function set_task_param(){
+	let code=document.getElementById("task_mode").value;
+	let data;
+	if(code!=99){
+		if(code==1){
+			data="<center>";
+			data+='<form method="post" enctype="multipart/form-data" onSubmit="return validateAndUploadInfer()" action="inference"><table><tr><td><b>Image : </b></td><td><input type="file" id="inferPic" onChange="validateUploadInfer()" name="inferPic"></td></tr><tr><td><input type="submit" value="Infer" class="btn btn-primary"></td><td><input type="reset" value="Cancel" class="btn btn-danger"></td></tr></table></form><div id="filecheck"></div></center>';	
+		}
+		else if(code==2){
+			data="";
+			data+='<div class="d-flex align-items-center">';
+  			data+='<strong>Fetching data...</strong>'
+  			data+='<div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>'
+			data+='</div>'
+			getModelStats();
+		}
+		else if(code==3){
+			data="";
+			data+='<div class="d-flex align-items-center">';
+  			data+='<strong>Fetching data...</strong>'
+  			data+='<div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>'
+			data+='</div>'
+			getDataset();
+		}
+		else{
+			data="Invalid selection code!";
+		}
+	}
+	else{
+		data="";
+	}
+	document.getElementById("task").innerHTML=data;
+}
+
+
+function getDataset(){
+	fetch('/getDataset')
+	.then((res)=>{
+		return res.json()
+	})
+	.then(
+		(response)=>{
+			if(response.status==200){
+				let data="";
+				data+="<b>Dataset fetched successfully!</b><br>";
+				data+='<table class="user-data-div">';
+				data+='<tr><th>Class Name</th><th>Data</th></tr>';
+				response.images.map((dataset)=>{
+					data+='<tr>';
+					data+='<td>'+ dataset.name +'</td>';
+					data+='<td><img src="'+ dataset.image +'" class="dataset-image"></td>';
+					data+='</tr>';
+				});
+				response.videos.map((dataset)=>{
+					data+='<tr>';
+					data+='<td>'+ dataset.name +'</td>';
+					data+='<td><video class="dataset-video" controls><source src="'+ dataset.video +'" type="video/mp4"> Your Browser does not support video media! </video></td>';
+					data+='</tr>';
+				});
+				data+="</table>";
+				document.getElementById("task").innerHTML=data;
+			}
+		}
+	);
+}
+
+function getModelStats(){
+	fetch('/getModelStats')
+	.then((res)=>{
+		return res.json()
+	})
+	.then(
+		(response)=>{
+			if(response.status==200){
+				let data="";
+				data+="<b>Model statistics fetched successfully!</b><br>";
+				data+='<table class="user-data-div">';
+				data+='<tr><th>Parameter</th><th>Value</th></tr>';
+				response.params.map((param)=>{
+					data+='<tr>';
+					data+='<td>'+ param.name +'</td>';
+					data+='<td>'+ param.value +'</td>';
+					data+='</tr>';
+				});
+				data+="</table>";
+				document.getElementById("task").innerHTML=data;
+			}
+		}
+	);
+}
+
+function validateUploadInfer(){
+	var fInput = document.getElementById("inferPic")
+	var flag = 0
+	if(fInput.value.length!=0){
+		/* file validation */
+		var validExt= /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+		if (!validExt.exec(fInput.value)) {
+			document.getElementById("filecheck").innerHTML='<font color="red">Only JPEG, JPG, PNG and GIF formats are supported!</font>';
+			fInput.style.borderColor="red";
+			flag=0;
+		}
+		else{
+			document.getElementById("filecheck").innerHTML='<font color="green">Looks good!</font>';
+			flag=1;
+			fInput.style.borderColor="green";
+		} 
+	}
+	if(flag==0){
+		return false;
+	}
+	else{
+		let formData=new FormData();
+		formData.append('file',fInput.files[0]);
+		let requestOptions = {
+			method: 'POST',
+			body: formData,
+			redirect: 'follow'
+	  };	
+		let data="";
+		data+='<div class="d-flex align-items-center">';
+		data+='<strong>Making inference...</strong>'
+		data+='<div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>'
+		data+='</div>'
+		document.getElementById("task").innerHTML=data;
+	fetch("/inference", requestOptions)
+	.then(response => response.json())
+	.then((result) => {
+		if(result.status==200){
+			data='Response time = '+result.response_time +' Seconds.<br>';
+			data+='<img src="'+ result.image +'" class="result_img">'
+			data+='&nbsp;&nbsp;&nbsp;&nbsp;The supplied image belongs to <u><b>'+result.prediction + '</b></u> class!<br>';
+			document.getElementById("task").innerHTML=data;
+		}
+		else{
+			alert("Server error! Try again later.");
+		}
+	})
+	.catch(error => console.log('error', error));
+
+	}
+
+}
