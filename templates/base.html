@@ -9,7 +9,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>        
         <link rel="stylesheet" href="{{ url_for('static', filename='./css/index.css') }}">
-        <link rel="shortcut icon" href="{{ url_for('static', filename='./icons/favicon.ico') }}" /> <!-- For setting custom mini icon on the title tab of web page -->
+        <link rel="shortcut icon" href="{{ url_for('static', filename='./icons/favicon.png') }}" /> <!-- For setting custom mini icon on the title tab of web page -->
         <script src="{{ url_for('static', filename='./js/index.js') }}"></script>
         <title>{% block title %}{% endblock %}</title>
     </head>
@@ -19,7 +19,7 @@
         <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
             <a class="navbar-brand" href="{{ url_for('index') }}">
                 <img src="{{ url_for('static', filename='./icons/logo.png') }}" width="30" height="30" class="d-inline-block align-top" alt="">
-                SkinDiseaseCV
+                SmokeFireAI
               </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
@@ -95,7 +95,7 @@
           <center>
             <!-- Copyright -->
             <div class="mb-3">© 2022 Copyright:
-              <a href="https://github.com/apoorvjha"> SkinDiseaseCV</a>
+              <a href="https://github.com/apoorvjha"> SmokeFireAI</a>
             </div>
             <!-- Copyright -->
           </center>
