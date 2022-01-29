@@ -1,9 +1,15 @@
 body{
+    /*
     background-image: url('../icons/background.jfif');
-    height : 600px;
     background-position: center;
     background-repeat: no-repeat;
-    background-size: cover; 
+    background-size: cover;
+    */
+    background: url('../icons/background.jfif') no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }
 .footer{
     background-color: black;
@@ -56,4 +62,40 @@ body{
     color : black;
     padding : 10px;
     width : 700px;
+    border-style: groove;
+	border-right-color:grey;
+	border-bottom-width: 10px;
+	border-right-width: 10px;
+	border-radius:20px;
+	border-bottom-color:grey;
+	border-top-color:orange;
+}
+
+.task{
+    background-color: white;
+    color : black;
+    padding : 10px;
+    width : 700px;
+    border-style: groove;
+	border-right-color:grey;
+	border-bottom-width: 10px;
+	border-right-width: 10px;
+	border-radius:20px;
+	border-bottom-color:grey;
+	border-top-color:orange;
+}
+.result_img{
+    height : 250px;
+    width : 250px;
+    border : 1px solid black;
+}
+.dataset-image{
+    height : 100px;
+    width : 100px;
+    border : 1px solid black;
+}
+.dataset-video{
+    height : 200px;
+    width : 250px;
+    border : 1px solid black;
 }
